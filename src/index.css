@@ -3,11 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
-* {}
+
 
 .Container {
-  width: 1430px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 1430px;
   margin: 0 auto;
   padding: 0 15px;
 }

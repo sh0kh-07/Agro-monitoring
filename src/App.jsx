@@ -6,6 +6,7 @@ import ErrorPage from "./Components/ErrorPage/ErrorPage";
 import { HokimRoutes } from "./Routes/HokimRoutes";
 import { TumanRoutes } from "./Routes/TumanRoutes";
 import MainLayout from "./layouts/MainLayout";
+
 function App() {
   return (
     <Router>
@@ -21,7 +22,7 @@ function App() {
               />
             ))}
           </Route>
-           <Route path="/hudud" element={<MainLayout />}>
+          <Route path="/hudud" element={<MainLayout />}>
             {TumanRoutes.map((route) => (
               <Route
                 key={route.path}
