@@ -21,7 +21,6 @@
   border-radius: 5px;
 }
 
-/* основной skeleton-блок */
 .skeleton-card {
     width: 100%;
     height: 85vh;
@@ -36,9 +35,12 @@
 
     position: relative;
     overflow: hidden;
+
+    /* анимация прозрачности */
+    animation: skeletonPulse 2.6s ease-in-out infinite;
 }
 
-/* shimmer-слой */
+/* shimmer (если нужен — можно оставить или убрать) */
 .skeleton-card::after {
     content: "";
     position: absolute;
@@ -46,16 +48,28 @@
 
     background: linear-gradient(
         110deg,
-        transparent 30%,
-        rgba(255, 255, 255, 0.45) 45%,
-        transparent 60%
+        transparent 35%,
+        rgba(255, 255, 255, 0.45) 50%,
+        transparent 65%
     );
 
     transform: translateX(-100%);
-    animation: shimmer 1.8s infinite;
+    animation: shimmer 2s infinite;
 }
 
-/* shimmer-анимация */
+/* анимации */
+@keyframes skeletonPulse {
+    0% {
+        opacity: 0.75;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.75;
+    }
+}
+
 @keyframes shimmer {
     100% {
         transform: translateX(100%);
