@@ -31,12 +31,14 @@ export default function Login() {
         username === fakeUser.username &&
         password === fakeUser.password
       ) {
+        sessionStorage.setItem("nesw", "ok1")
         navigate("/hudud");
       } 
       if (
         username === hokim.username &&
         password === hokim.password
       ) {
+        sessionStorage.setItem("nesw", "ok1")
         navigate("/tuman/dashboard");
       } else {
         setError("Foydalanuvchi nomi yoki parol noto‘g‘ri");
