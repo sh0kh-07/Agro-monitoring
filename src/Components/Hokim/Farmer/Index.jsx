@@ -1,37 +1,43 @@
 import { useParams } from "react-router-dom";
 import { FarmerConfig } from "../FarmerData/FarmerConfig";
-import { Typography } from "@material-tailwind/react";
-import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { $api } from "../../../utils/Headers";
+import Loading from "../../UI/Loadings/Loading";
+import { io } from "socket.io-client";
+
 
 export default function Farmer() {
     const { name } = useParams();
     const province = FarmerConfig[name];
     const [apiData, setApiData] = useState([]);
+    const socketRef = useRef(null); // Добавляем реф для socket
+
+    const [loading, setLoading] = useState(true);
 
     if (!province) {
         return (
-            <div className="flex flex-col items-center justify-center h-[70vh]">
-                <div className="flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-4">
-                    <ExclamationCircleIcon className="w-10 h-10 text-red-500" />
+            <div className="flex flex-col items-center justify-center h-[70vh] p-4">
+                <div className="flex items-center justify-center w-16 h-16 bg-red-50 rounded-full mb-4 border border-red-100">
+                    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.694-.833-2.464 0L4.342 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
                 </div>
-                <Typography variant="h5" color="red" className="text-center">
+                <h2 className="text-lg font-semibold text-gray-800 text-center mb-2">
                     Маълумот топилмади
-                </Typography>
-                <Typography color="gray" className="text-center mt-2">
+                </h2>
+                <p className="text-sm text-gray-600 text-center">
                     Бу ҳудуд учун маълумот ҳали мавжуд эмас.
-                </Typography>
+                </p>
             </div>
-        )
+        );
     }
 
     // Функция для получения значения из API данных
     const getValueFromApi = (farmerName, taskName, key = "Мавсум боши") => {
         const item = apiData.find(
-            (data) => 
-                data.farmer === farmerName && 
-                data.task === taskName && 
+            (data) =>
+                data.farmer === farmerName &&
+                data.task === taskName &&
                 data.key === key
         );
         return item ? item.value : null;
@@ -41,109 +47,84 @@ export default function Farmer() {
     const mapApiDataToDistricts = useMemo(() => {
         const updatedDistricts = province.districts.map(district => {
             const newDistrict = { ...district };
-            
+
             // Блок 1: Кузги шудгорлаш
-            const seasonStart1 = getValueFromApi(district.name, "Кузги шудгорлаш", "Мавсум боши");
+            const seasonStart1 = getValueFromApi(district.name, "Кузги шудгорлаш");
             if (seasonStart1 !== null) {
                 newDistrict.seasonStart = seasonStart1;
                 const debt = parseFloat(newDistrict.existingDebt) || 0;
                 const start = parseFloat(seasonStart1) || 0;
                 if (debt > 0) {
-                    newDistrict.percentage = ((start / debt) * 100).toFixed(1) + '%';
+                    newDistrict.percentage = ((start / debt) * 100).toFixed(1);
                 }
             }
-            
+
             // Блок 2: Насосларга қуёш панели ўрнатиш
-            const seasonStart2 = getValueFromApi(district.name, "Насосларга қуёш панели ўрнатиш", "Мавсум боши");
+            const seasonStart2 = getValueFromApi(district.name, "Насосларга қуёш панели ўрнатиш");
             if (seasonStart2 !== null) {
                 newDistrict.seasonStart2 = seasonStart2;
                 const debt = parseFloat(newDistrict.existingDebt2) || 0;
                 const start = parseFloat(seasonStart2) || 0;
                 if (debt > 0) {
-                    newDistrict.percentage2 = ((start / debt) * 100).toFixed(1) + '%';
+                    newDistrict.percentage2 = ((start / debt) * 100).toFixed(1);
                 }
             }
-            
+
             // Блок 3: Ички ариқларни бетонлаштириш
-            const seasonStart3 = getValueFromApi(district.name, "Ички ариқларни бетонлаштириш", "Мавсум боши");
+            const seasonStart3 = getValueFromApi(district.name, "Ички ариқларни бетонлаштириш");
             if (seasonStart3 !== null) {
                 newDistrict.seasonStart3 = seasonStart3;
                 const debt = parseFloat(newDistrict.existingDebt3) || 0;
                 const start = parseFloat(seasonStart3) || 0;
                 if (debt > 0) {
-                    newDistrict.percentage3 = ((start / debt) * 100).toFixed(1) + '%';
+                    newDistrict.percentage3 = ((start / debt) * 100).toFixed(1);
                 }
             }
-            
+
             return newDistrict;
         });
 
         return updatedDistricts;
     }, [apiData, province.districts]);
 
-    // Функция для подсчета итогов на основе обновленных данных
+    // Функция для подсчета итогов
     const calculateTotals = () => {
         let totals = {
-            existingDebt: 0,
-            seasonStart: 0,
-            percentage: '',
-            
-            existingDebt2: 0,
-            seasonStart2: 0,
-            percentage2: '',
-            
-            existingDebt3: 0,
-            seasonStart3: 0,
-            percentage3: '',
+            existingDebt: 0, seasonStart: 0,
+            existingDebt2: 0, seasonStart2: 0,
+            existingDebt3: 0, seasonStart3: 0,
         };
 
         mapApiDataToDistricts.forEach(district => {
-            // Блок 1
             totals.existingDebt += parseFloat(district.existingDebt) || 0;
             totals.seasonStart += parseFloat(district.seasonStart) || 0;
-            
-            // Блок 2
             totals.existingDebt2 += parseFloat(district.existingDebt2) || 0;
             totals.seasonStart2 += parseFloat(district.seasonStart2) || 0;
-            
-            // Блок 3
             totals.existingDebt3 += parseFloat(district.existingDebt3) || 0;
             totals.seasonStart3 += parseFloat(district.seasonStart3) || 0;
         });
 
-        // Вычисляем проценты
-        totals.percentage = totals.existingDebt > 0 
-            ? ((totals.seasonStart / totals.existingDebt) * 100).toFixed(1) + '%'
-            : '';
-        
-        totals.percentage2 = totals.existingDebt2 > 0 
-            ? ((totals.seasonStart2 / totals.existingDebt2) * 100).toFixed(1) + '%'
-            : '';
-        
-        totals.percentage3 = totals.existingDebt3 > 0 
-            ? ((totals.seasonStart3 / totals.existingDebt3) * 100).toFixed(1) + '%'
-            : '';
-
-        // Форматируем числа
         const formatNumber = (num) => {
             return num.toLocaleString('ru-RU', {
                 minimumFractionDigits: 0,
-                maximumFractionDigits: 2
-            }).replace(',', '.');
+                maximumFractionDigits: 0
+            });
         };
+
+        const percentage1 = totals.existingDebt > 0 ? ((totals.seasonStart / totals.existingDebt) * 100).toFixed(1) : '';
+        const percentage2 = totals.existingDebt2 > 0 ? ((totals.seasonStart2 / totals.existingDebt2) * 100).toFixed(1) : '';
+        const percentage3 = totals.existingDebt3 > 0 ? ((totals.seasonStart3 / totals.existingDebt3) * 100).toFixed(1) : '';
 
         return {
             existingDebt: formatNumber(totals.existingDebt),
             seasonStart: formatNumber(totals.seasonStart),
-            percentage: totals.percentage,
-            
+            percentage: percentage1,
             existingDebt2: formatNumber(totals.existingDebt2),
             seasonStart2: formatNumber(totals.seasonStart2),
-            percentage2: totals.percentage2,
-            
+            percentage2: percentage2,
             existingDebt3: formatNumber(totals.existingDebt3),
             seasonStart3: formatNumber(totals.seasonStart3),
-            percentage3: totals.percentage3,
+            percentage3: percentage3,
         };
     };
 
@@ -155,6 +136,8 @@ export default function Farmer() {
             }
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -162,276 +145,241 @@ export default function Farmer() {
         Get();
     }, [name]);
 
+
+    useEffect(() => {
+        Get(); // первый запрос при загрузке
+        socketRef.current = io("https://dev.ithubs.uz", {
+            path: "/coffee/socket.io",
+            transports: ["websocket"],
+        });
+        socketRef.current.on("district:update", (data) => {
+            console.log("Получены обновления по районам:", data);
+            Get();
+        });
+
+        // Обработка соединения/отключения
+        socketRef.current.on("connect", () => {
+            console.log("Socket подключен");
+        });
+
+        socketRef.current.on("disconnect", () => {
+            console.log("Socket отключен");
+        });
+
+        // очистка при размонтировании
+        return () => {
+            socketRef.current.off("district:update");
+            socketRef.current.off("connect");
+            socketRef.current.off("disconnect");
+            socketRef.current.disconnect();
+        };
+    }, []);
+
     const totalsData = calculateTotals();
 
+    if (loading) {
+        return <Loading />;
+    }
+
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="min-h-screen bg-gray-50 p-4">
             {/* Заголовок страницы */}
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-800 mb-2">
+                <h1 className="text-xl font-bold text-gray-800 mb-2">
                     {province.title}
                 </h1>
-                <div className="h-1 w-20 bg-blue-500 rounded-full"></div>
+                <div className="h-0.5 w-16 bg-gray-300"></div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+            <div className="bg-white border border-[#212121] shadow-sm rounded-sm overflow-hidden">
                 <div className="overflow-x-auto">
-                    <div className="min-w-max">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                {/* Основной заголовок строки */}
-                                <tr className="border-b border-black">
-                                    <th rowSpan={3} className="sticky left-0 z-20 p-3 border rounded-tl-sm text-center font-semibold text-gray-700 bg-gray-50 border-r border-black">
-                                        Т/р
-                                    </th>
-                                    <th rowSpan={3} className="sticky left-12 z-20 p-3 border-b text-center font-semibold text-gray-700 bg-gray-50 border-r border-black border-t min-w-[150px]">
-                                        "Туманлар номи"
-                                    </th>
+                    <table className="w-full border-collapse text-sm">
+                        <thead>
+                            {/* Основные заголовки */}
+                            <tr className="bg-gray-100">
+                                <th rowSpan={3} className="sticky left-0 z-10 p-2 border border-[#212121] text-center font-semibold text-gray-700 bg-gray-100 min-w-[40px]">
+                                    №
+                                </th>
+                                <th rowSpan={3} className="sticky left-[40px] z-10 p-2 border border-[#212121] text-center font-semibold text-gray-700 bg-gray-100 min-w-[150px]">
+                                    Туманлар номи
+                                </th>
 
-                                    {/* Основные заголовки блоков */}
-                                    <th colSpan={4} className="p-3 text-center font-medium text-gray-800 bg-blue-50 border-r border-t border-black min-w-[250px]">
-                                        Кузги шудгорлаш
-                                    </th>
+                                {/* Основные заголовки блоков */}
+                                <th colSpan={4} className="p-2 border border-[#212121] text-center font-medium text-gray-700 bg-blue-50 min-w-[200px]">
+                                    Кузги шудгорлаш
+                                </th>
+                                <th colSpan={4} className="p-2 border border-[#212121] text-center font-medium text-gray-700 bg-blue-50 min-w-[200px]">
+                                    Насосларга қуёш панели ўрнатиш
+                                </th>
+                                <th colSpan={4} className="p-2 border border-[#212121] text-center font-medium text-gray-700 bg-blue-50 min-w-[200px]">
+                                    Ички ариқларни бетонлаштириш
+                                </th>
+                                <th colSpan={4} className="p-2 border border-[#212121] text-center font-medium text-gray-700 bg-blue-50 min-w-[200px]">
+                                    Ариқларни тозалаш (қўл кучида)
+                                </th>
+                            </tr>
 
-                                    <th colSpan={4} className="p-3 text-center font-medium text-gray-800 bg-blue-50 border-t border-r border-black min-w-[250px]">
-                                        Насосларга қуёш панели ўрнатиш
-                                    </th>
-
-                                    <th colSpan={4} className="p-3 text-center font-medium text-gray-800 bg-blue-50 border-t border-r border-black min-w-[250px]">
-                                        Ички ариқларни бетонлаштириш
-                                    </th>
-
-                                    <th colSpan={4} className="p-3 text-center font-medium text-gray-800 bg-blue-50 border-t border-r border-black min-w-[250px]">
-                                        Ариқларни тозалаш (қўл кучида)
-                                    </th>
-                                </tr>
-
-                                {/* Подзаголовки */}
-                                <tr className="border-b border-gray-200">
-                                    {/* Блок 1 */}
-                                    <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 border-t border-b bg-blue-100 border-r border-black min-w-[120px]">
-                                        Режа
-                                    </th>
-                                    <th colSpan={2} className="p-2 text-center font-medium text-gray-700 border-t border-b bg-blue-100 border-r border-black">
-                                        Амалда
-                                    </th>
-                                    <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 bg-blue-100 border-b border-r border-black min-w-[70px]">
-                                        %
-                                    </th>
-
-                                    {/* Блок 2 */}
-                                    <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 bg-blue-100 border-r border-b border-black min-w-[120px]">
-                                        Режа
-                                    </th>
-                                    <th colSpan={2} className="p-2 text-center font-medium text-gray-700 bg-blue-100 border-r border-b border-black">
-                                        Амалда
-                                    </th>
-                                    <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 border-b bg-blue-100 border-r border-black min-w-[70px]">
-                                        %
-                                    </th>
-
-                                    {/* Блок 3 */}
-                                    <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 border-b bg-blue-100 border-r border-black min-w-[120px]">
-                                        Режа
-                                    </th>
-                                    <th colSpan={2} className="p-2 text-center font-medium text-gray-700 bg-blue-100 border-r border-black">
-                                        Амалда
-                                    </th>
-                                    <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 bg-blue-100 border-r border-black min-w-[70px]">
-                                        %
-                                    </th>
-
-                                    {/* Блок 4 */}
-                                    <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 border-b bg-blue-100 border-r border-black min-w-[120px]">
-                                        Режа
-                                    </th>
-                                    <th colSpan={2} className="p-2 text-center font-medium text-gray-700 border-b bg-blue-100 border-r border-black">
-                                        Амалда
-                                    </th>
-                                    <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 border-b border-black bg-blue-100 min-w-[70px]">
-                                        %
-                                    </th>
-                                </tr>
-
-                                {/* Самые внутренние заголовки */}
-                                <tr className="border-b border-gray-200">
-                                    {/* Блок 1 */}
-                                    <th className="p-2 text-center text-sm font-normal text-gray-600 border-b bg-blue-50 border-r border-black min-w-[90px]">
-                                        "Бир кунда"
-                                    </th>
-                                    <th className="p-2 text-center text-sm font-normal text-gray-600 border-b bg-blue-50 border-r border-black min-w-[90px]">
-                                        Мавсум боши
-                                    </th>
-
-                                    {/* Блок 2 */}
-                                    <th className="p-2 text-center text-sm font-normal border-b text-gray-600 bg-blue-50 border-r border-black min-w-[90px]">
-                                        "Бир кунда"
-                                    </th>
-                                    <th className="p-2 text-center text-sm font-normal border-b text-gray-600 bg-blue-50 border-r border-black min-w-[90px]">
-                                        Мавсум боши
-                                    </th>
-
-                                    {/* Блок 3 */}
-                                    <th className="p-2 text-center text-sm font-normal border-b text-gray-600 bg-blue-50 border-r border-black min-w-[90px]">
-                                        "Бир кунда"
-                                    </th>
-                                    <th className="p-2 text-center text-sm font-normal border-b text-gray-600 bg-blue-50 border-r border-black min-w-[90px]">
-                                        Мавсум боши
-                                    </th>
-
-                                    {/* Блок 4 */}
-                                    <th className="p-2 text-center text-sm font-normal border-b text-gray-600 bg-blue-50 border-r border-black min-w-[90px]">
-                                        "Бир кунда"
-                                    </th>
-                                    <th className="p-2 text-center text-sm font-normal border-b text-gray-600 border-black bg-blue-50 min-w-[90px]">
-                                        Мавсум боши
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {mapApiDataToDistricts.map((district, index) => (
-                                    <tr
-                                        key={district.id}
-                                        className={`
-                                            border-b border-black 
-                                            ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-                                            hover:bg-blue-50 transition-colors duration-150
-                                        `}
-                                    >
-                                        {/* Статичные колонки */}
-                                        <td className="sticky left-0 z-10 p-3 text-center font-medium text-gray-700 bg-gray-50 border border-black">
-                                            {district.id}
-                                        </td>
-                                        <td className="sticky left-12 z-10 p-3 font-medium text-gray-800 bg-gray-50 border-r border-black">
-                                            {district.name}
-                                        </td>
-
-                                        {/* Блок 1 */}
-                                        <td className="p-3 text-center font-medium text-gray-700 border-r border-black">
-                                            {district.existingDebt || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center border-r border-black">
-                                            {district.oneDay || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center border-r border-black">
-                                            {district.seasonStart || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center font-medium border-r border-black">
-                                            {district.percentage || <span className="text-gray-400">-</span>}
-                                        </td>
-
-                                        {/* Блок 2 */}
-                                        <td className="p-3 text-center font-medium text-gray-700 border-r border-black">
-                                            {district.existingDebt2 || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center border-r border-black">
-                                            {district.oneDay2 || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center border-r border-black">
-                                            {district.seasonStart2 || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center font-medium border-r border-black">
-                                            {district.percentage2 || <span className="text-gray-400">-</span>}
-                                        </td>
-
-                                        {/* Блок 3 */}
-                                        <td className="p-3 text-center font-medium text-gray-700 border-r border-black">
-                                            {district.existingDebt3 || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center border-r border-black">
-                                            {district.oneDay3 || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center border-r border-black">
-                                            {district.seasonStart3 || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center font-medium border-r border-black">
-                                            {district.percentage3 || <span className="text-gray-400">-</span>}
-                                        </td>
-
-                                        {/* Блок 4 */}
-                                        <td className="p-3 text-center font-medium text-gray-700 border-r border-black">
-                                            {district.existingDebt || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center border-r border-black">
-                                            {district.oneDay || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center border-r border-black">
-                                            {district.seasonStart || <span className="text-gray-400">-</span>}
-                                        </td>
-                                        <td className="p-3 text-center font-medium">
-                                            {district.percentage || <span className="text-gray-400">-</span>}
-                                        </td>
-                                    </tr>
+                            {/* Подзаголовки */}
+                            <tr className="bg-gray-50">
+                                {[...Array(4)].map((_, blockIndex) => (
+                                    <>
+                                        <th rowSpan={2} className="p-2 border border-[#212121] text-center font-medium text-gray-700 min-w-[80px]">
+                                            Режа
+                                        </th>
+                                        <th colSpan={2} className="p-2 border border-[#212121] text-center font-medium text-gray-700">
+                                            Амалда
+                                        </th>
+                                        <th rowSpan={2} className="p-2 border border-[#212121] text-center font-medium text-gray-700 min-w-[60px]">
+                                            %
+                                        </th>
+                                    </>
                                 ))}
+                            </tr>
 
-                                {/* Итоговая строка */}
-                                <tr className="border-t-2 border-black bg-gray-100 font-semibold">
-                                    <td colSpan={2} className="sticky left-0 z-10 p-3 text-gray-800 bg-gray-100 border-r border-black">
-                                        Жами
-                                    </td>
+                            {/* Детальные заголовки */}
+                            <tr className="bg-gray-50">
+                                {[...Array(4)].map((_, blockIndex) => (
+                                    <>
+                                        <th className="p-2 border border-[#212121] text-center text-xs text-gray-600 min-w-[70px]">
+                                            Бир кунда
+                                        </th>
+                                        <th className="p-2 border border-[#212121] text-center text-xs text-gray-600 min-w-[70px]">
+                                            Мавсум боши
+                                        </th>
+                                    </>
+                                ))}
+                            </tr>
+                        </thead>
 
-                                    {/* Блок 1 итогов */}
-                                    <td className="p-3 text-center text-gray-800 border-r border-black">
-                                        {totalsData.existingDebt}
+                        <tbody>
+                            {mapApiDataToDistricts.map((district, index) => (
+                                <tr key={district.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50 hover:bg-gray-100'}>
+                                    {/* Номер и название */}
+                                    <td className="sticky left-0 z-5 p-2 border border-[#212121] text-center text-gray-700 bg-gray-50">
+                                        {district.id}
                                     </td>
-                                    <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        -
-                                    </td>
-                                    <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.seasonStart}
-                                    </td>
-                                    <td className="p-3 text-center text-gray-800 border-r border-black">
-                                        {totalsData.percentage || '-'}
-                                    </td>
-
-                                    {/* Блок 2 итогов */}
-                                    <td className="p-3 text-center text-gray-800 border-r border-black">
-                                        {totalsData.existingDebt2}
-                                    </td>
-                                    <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        -
-                                    </td>
-                                    <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.seasonStart2}
-                                    </td>
-                                    <td className="p-3 text-center text-gray-800 border-r border-black">
-                                        {totalsData.percentage2 || '-'}
+                                    <td className="sticky left-[40px] z-5 p-2 border border-[#212121] text-gray-800 bg-gray-50 font-medium">
+                                        {district.name}
                                     </td>
 
-                                    {/* Блок 3 итогов */}
-                                    <td className="p-3 text-center text-gray-800 border-r border-black">
-                                        {totalsData.existingDebt3}
+                                    {/* Блок 1 */}
+                                    <td className="p-2 border border-[#212121] text-center text-gray-700">
+                                        {district.existingDebt || '-'}
                                     </td>
-                                    <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        -
+                                    <td className="p-2 border border-[#212121] text-center text-gray-600">
+                                        {district.oneDay || '-'}
                                     </td>
-                                    <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.seasonStart3}
+                                    <td className="p-2 border border-[#212121] text-center text-gray-600 font-medium">
+                                        {district.seasonStart || '-'}
                                     </td>
-                                    <td className="p-3 text-center text-gray-800 border-r border-black">
-                                        {totalsData.percentage3 || '-'}
+                                    <td className="p-2 border border-[#212121] text-center text-gray-700 font-medium">
+                                        {district.percentage ? `${district.percentage}%` : '-'}
                                     </td>
 
-                                    {/* Блок 4 итогов */}
-                                    <td className="p-3 text-center text-gray-800 border-r border-black">
-                                        {totalsData.existingDebt}
+                                    {/* Блок 2 */}
+                                    <td className="p-2 border border-[#212121] text-center text-gray-700">
+                                        {district.existingDebt2 || '-'}
                                     </td>
-                                    <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        -
+                                    <td className="p-2 border border-[#212121] text-center text-gray-600">
+                                        {district.oneDay2 || '-'}
                                     </td>
-                                    <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.seasonStart}
+                                    <td className="p-2 border border-[#212121] text-center text-gray-600 font-medium">
+                                        {district.seasonStart2 || '-'}
                                     </td>
-                                    <td className="p-3 text-center text-gray-800">
-                                        {totalsData.percentage || '-'}
+                                    <td className="p-2 border border-[#212121] text-center text-gray-700 font-medium">
+                                        {district.percentage2 ? `${district.percentage2}%` : '-'}
+                                    </td>
+
+                                    {/* Блок 3 */}
+                                    <td className="p-2 border border-[#212121] text-center text-gray-700">
+                                        {district.existingDebt3 || '-'}
+                                    </td>
+                                    <td className="p-2 border border-[#212121] text-center text-gray-600">
+                                        {district.oneDay3 || '-'}
+                                    </td>
+                                    <td className="p-2 border border-[#212121] text-center text-gray-600 font-medium">
+                                        {district.seasonStart3 || '-'}
+                                    </td>
+                                    <td className="p-2 border border-[#212121] text-center text-gray-700 font-medium">
+                                        {district.percentage3 ? `${district.percentage3}%` : '-'}
+                                    </td>
+
+                                    {/* Блок 4 */}
+                                    <td className="p-2 border border-[#212121] text-center text-gray-700">
+                                        {district.existingDebt || '-'}
+                                    </td>
+                                    <td className="p-2 border border-[#212121] text-center text-gray-600">
+                                        {district.oneDay || '-'}
+                                    </td>
+                                    <td className="p-2 border border-[#212121] text-center text-gray-600 font-medium">
+                                        {district.seasonStart || '-'}
+                                    </td>
+                                    <td className="p-2 border border-[#212121] text-center text-gray-700 font-medium">
+                                        {district.percentage ? `${district.percentage}%` : '-'}
                                     </td>
                                 </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                            ))}
+
+                            {/* Итоговая строка */}
+                            <tr className="bg-gray-100 font-semibold border-t-2 border-gray-400">
+                                <td colSpan={2} className="sticky left-0 z-5 p-2 border border-[#212121] text-gray-800 bg-gray-100">
+                                    Жами
+                                </td>
+
+                                {/* Итоги блока 1 */}
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.existingDebt}
+                                </td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-600">-</td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.seasonStart}
+                                </td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.percentage ? `${totalsData.percentage}%` : '-'}
+                                </td>
+
+                                {/* Итоги блока 2 */}
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.existingDebt2}
+                                </td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-600">-</td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.seasonStart2}
+                                </td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.percentage2 ? `${totalsData.percentage2}%` : '-'}
+                                </td>
+
+                                {/* Итоги блока 3 */}
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.existingDebt3}
+                                </td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-600">-</td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.seasonStart3}
+                                </td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.percentage3 ? `${totalsData.percentage3}%` : '-'}
+                                </td>
+
+                                {/* Итоги блока 4 */}
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.existingDebt}
+                                </td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-600">-</td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.seasonStart}
+                                </td>
+                                <td className="p-2 border border-[#212121] text-center text-gray-800">
+                                    {totalsData.percentage ? `${totalsData.percentage}%` : '-'}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
+
         </div>
     );
 }
@@ -439,5 +387,5 @@ export default function Farmer() {
 Farmer.defaultProps = {
     districts: null,
     totals: null,
-    title: "Туманлар буйича ҳисобот"
+    title: "Фермерлар буйича ҳисобот"
 };
