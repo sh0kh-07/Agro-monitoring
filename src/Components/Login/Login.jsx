@@ -1,114 +1,105 @@
-import React, { useState } from "react";
-import { Button, Input } from "@material-tailwind/react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import { Alert } from "../../utils/Alert";
+import { User, Lock, Loader2 } from "lucide-react";
+import "./login.css";
+import gerb from "../../Images/uzb.png"
 
-const Login = () => {
+export default function Login() {
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
 
-  // 🔐 Локальные пользователи
-  const users = [
-    {
-      username: "admin",
-      password: "123456",
-      role: "ADMIN",
-      redirect: "/tuman/province",
-    },
-    {
-      username: "boyovut",
-      password: "123456",
-      role: "SELLER",
-      redirect: "/hudud",
-    },
-  ];
+  const fakeUser = {
+    username: "admin1",
+    password: "1234",
+  };
 
-  const handleLogin = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
     setLoading(true);
 
     setTimeout(() => {
-      const user = users.find(
-        (u) => u.username === username && u.password === password
-      );
-
-      if (!user) {
-        Alert("Login yoki parol noto‘g‘ri", "error");
+      if (
+        username === fakeUser.username &&
+        password === fakeUser.password
+      ) {
+        navigate("/hudud");
+      } else {
+        setError("Foydalanuvchi nomi yoki parol noto‘g‘ri");
         setLoading(false);
-        return;
       }
-
-      // ⬇️ сохраняем как будто токен
-      localStorage.setItem("token", "FAKE_TOKEN_123");
-      localStorage.setItem("role", user.role);
-
-      Alert("Muvaffaqiyatli kirildi", "success");
-      navigate(user.redirect);
-      setLoading(false);
-    }, 500); // имитация загрузки
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") handleLogin();
+    }, 1500);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-neutral-900 to-gray-800 px-2">
-      <div className="w-full max-w-md bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-white/20">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white">Login</h1>
-          <p className="mt-2 text-sm text-gray-300">
-            Kirish uchun ma'lumotlarni kiriting
-          </p>
+    <div className="light-bg">
+      <div className="light-card">
+        {/* Header */}
+        <div className="light-header">
+          <div className="gerb-placeholder">
+            <img src={gerb} alt="" />
+          </div>
+          <h1>
+            Qishloq xo‘jaligi boshqaruv
+            <br />
+            axborot tizimi
+          </h1>
+          <span className="portal-sub">
+            Davlat axborot resursi
+          </span>
         </div>
 
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm text-gray-200 mb-1">Login</label>
-            <Input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="bg-white/20 text-white"
-              crossOrigin={undefined}
-            />
-          </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="light-form">
+          <label>
+            Foydalanuvchi nomi
+            <div className="input-wrap">
+              <User size={18} />
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+          </label>
 
-          <div>
-            <label className="block text-sm text-gray-200 mb-1">Parol</label>
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
+          <label>
+            Parol
+            <div className="input-wrap">
+              <Lock size={18} />
+              <input
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="bg-white/20 text-white"
-                crossOrigin={undefined}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
-              >
-                {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-              </button>
             </div>
-          </div>
+          </label>
 
-          <Button
-            onClick={handleLogin}
-            disabled={loading}
-            className="w-full bg-white text-black font-bold py-3 rounded-xl"
-          >
-            {loading ? "Yuklanmoqda..." : "Kirish"}
-          </Button>
+          {error && (
+            <div className="light-error">
+              {error}
+            </div>
+          )}
+
+          <button className="light-btn" disabled={loading}>
+            {loading ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              "Tizimga kirish"
+            )}
+          </button>
+        </form>
+
+        {/* Footer */}
+        <div className="light-footer">
+          <span>© 2025</span>
+          <span>🇺🇿</span>
         </div>
       </div>
     </div>
   );
-};
-
-export default Login;
+}

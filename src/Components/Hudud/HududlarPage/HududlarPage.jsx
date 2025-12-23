@@ -10,8 +10,8 @@ export default function HududlarPage() {
     const totals = calcTotals(hududlar, tasks);
 
     return (
-        <div className="p-6 text-white">
-            <h1 className="text-white text-xl font-semibold mb-4">Hududlar bo‘yicha ishlar</h1>
+        <div className="p-6 text-black">
+            <h1 className="text-black text-xl font-semibold mb-4">Боёвут tumani - Hududlar bo‘yicha ishlar</h1>
 
             <StickyTable
             using={"hudud"}

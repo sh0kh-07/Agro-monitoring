@@ -14,7 +14,8 @@ import {
 import { useNavigate } from "react-router-dom"
 
 export default function Sidebar({ collapsed, setCollapsed }) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  
   const [active, setActive] = useState("dashboard")
   const [openMenu, setOpenMenu] = useState(null)
 
@@ -55,14 +56,14 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           onClick={() => setActive("dashboard")}
         />
 
-        <MenuItem
+        {/* <MenuItem
           icon={FileText}
           label="Murojaatlar"
           collapsed={collapsed}
           active={active === "appeals"}
           badge={12}
           onClick={() => setActive("appeals")}
-        />
+        /> */}
 
         <MenuItem
           icon={Users}
@@ -110,14 +111,12 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
         <MenuItem
           icon={BarChart3}
-          label="Hisobotlar"
+          label="Monitoring"
           collapsed={collapsed}
           active={active === "reports"}
           onClick={() => {
-            setActive("reports");
-            navigate("/hudud/hududlar");
-          }
-          }
+            setActive("reports"); navigate("/hudud/hududlar");
+          }}
         />
 
         <MenuItem
