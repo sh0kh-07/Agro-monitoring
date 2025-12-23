@@ -16,6 +16,10 @@ export default function Login() {
     username: "admin1",
     password: "1234",
   };
+  const hokim = {
+    username: "admin",
+    password: "1234",
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -28,11 +32,17 @@ export default function Login() {
         password === fakeUser.password
       ) {
         navigate("/hudud");
+      } 
+      if (
+        username === hokim.username &&
+        password === hokim.password
+      ) {
+        navigate("/tuman/dashboard");
       } else {
         setError("Foydalanuvchi nomi yoki parol noto‘g‘ri");
         setLoading(false);
       }
-    }, 1500);
+    }, 1000);
   };
 
   return (
