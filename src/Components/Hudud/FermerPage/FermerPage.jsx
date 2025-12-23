@@ -48,7 +48,7 @@ export default function FermerPage() {
             area: selectedHudud,
             farmer: row.name,
             task: task.name,
-            key: "mavsum_boshi",
+            key: "Мавсум боши",
             value: v,
         };
 
@@ -104,7 +104,7 @@ export default function FermerPage() {
                                 <div className="relative">
                                     <input
                                         type="number"
-                                        min={0}
+                                        min={-1}
                                         max={v.plan}
                                         value={v.actual}
                                         onChange={(e) =>

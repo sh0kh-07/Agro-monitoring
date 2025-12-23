@@ -11,7 +11,7 @@ export default function HududlarPage() {
 
     return (
         <div className="p-6 text-white">
-            <h1 className="text-white text-xl font-semibold mb-4">Hududlar bo‘yicha ishlar</h1>
+            <h1 className="text-white text-xl font-semibold mb-4">Боёвут tumani - Hududlar bo‘yicha ishlar</h1>
 
             <StickyTable
             using={"hudud"}

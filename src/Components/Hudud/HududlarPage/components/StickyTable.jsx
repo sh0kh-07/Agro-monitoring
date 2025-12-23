@@ -18,10 +18,10 @@ export default function StickyTable({
                 <thead className="sticky top-0 z-40 bg-[#1b2a3ae6]">
                     {/* TASK GROUP HEADER */}
                     <tr>
-                        <th className="sticky bg-[#1b2a3ae6] left-0 z-50 bg-slate-900 text-white border border-slate-700 px-3 py-3 w-12 text-center">
+                        <th className="sticky bg-[#1b2a3ae6] left-0 z-50 bg-slate-900 text-white border border-slate-700 border-b-0  px-3 py-3 w-12 text-center">
                             №
                         </th>
-                        <th className="sticky bg-[#1b2a3ae6] left-12 z-50 bg-slate-900 text-white border border-slate-700 px-4 py-3 w-64 text-left">
+                        <th className="sticky bg-[#1b2a3ae6] left-12 z-50 bg-slate-900 text-white border border-slate-700 border-b-0  px-4 py-3 w-64 text-center">
                             {using === "hudud" ? "Hudud" : "F/X"}
                         </th>
 
@@ -43,8 +43,8 @@ export default function StickyTable({
 
                     {/* SUB HEADER */}
                     <tr>
-                        <th className="sticky bg-[#1b2a3ae6] left-0 z-50 bg-slate-800 border border-slate-700" />
-                        <th className="sticky bg-[#1b2a3ae6] left-12 z-50 bg-slate-800 border border-slate-700" />
+                        <th className="sticky  bg-[#1b2a3ae6] left-0 z-50 bg-slate-800 border border-t-0 border-t-[#1b2a3ae6]" />
+                        <th className="sticky  bg-[#1b2a3ae6] left-12 z-50 bg-slate-800 border border-t-0 border-t-[#1b2a3ae6]" />
 
                         {tasks.map((task) => (
                             <React.Fragment key={task.id}>
