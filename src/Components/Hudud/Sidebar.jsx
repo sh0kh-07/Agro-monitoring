@@ -11,9 +11,10 @@ import {
   ChevronLeft,
   LogOut,
 } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
-export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false)
+export default function Sidebar({ collapsed, setCollapsed }) {
+  const navigate = useNavigate()
   const [active, setActive] = useState("dashboard")
   const [openMenu, setOpenMenu] = useState(null)
 
@@ -22,7 +23,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`h-screen flex flex-col transition-all duration-300
+      className={`fixed left-0 top-0 bottom-0 h-screen flex flex-col transition-all duration-300
       ${collapsed ? "w-20" : "w-72"}
       bg-[#1b2a3a] text-[#e6edf3] border-r border-[#2c3e50]`}
     >
@@ -65,7 +66,7 @@ export default function Sidebar() {
 
         <MenuItem
           icon={Users}
-          label="Fuqarolar"
+          label="Fermer Xo‘jaliklari"
           collapsed={collapsed}
           active={active === "citizens"}
           onClick={() => setActive("citizens")}
@@ -112,7 +113,11 @@ export default function Sidebar() {
           label="Hisobotlar"
           collapsed={collapsed}
           active={active === "reports"}
-          onClick={() => setActive("reports")}
+          onClick={() => {
+            setActive("reports");
+            navigate("/hudud/hududlar");
+          }
+          }
         />
 
         <MenuItem
