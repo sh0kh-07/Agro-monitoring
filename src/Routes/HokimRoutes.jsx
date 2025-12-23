@@ -1,4 +1,5 @@
 import Dashboard from "../Components/Hokim/Dashboard";
+import Farmer from "../Components/Hokim/Farmer/Index";
 import ProvinceDetail from "../Components/Hokim/ProvinceDetail";
 import Viloyat from "../Components/Hokim/Viloyat";
 
@@ -16,6 +17,11 @@ export const HokimRoutes = [
     {
         name: 'Viloyat detail',
         path: 'province/:name',
-        component: <ProvinceDetail  />
+        component: <ProvinceDetail />
+    },
+    {
+        name: 'Tuman detail',
+        path: '1/:name',
+        component: <Farmer />
     }
-]
+];

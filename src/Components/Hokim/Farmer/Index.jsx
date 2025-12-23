@@ -1,12 +1,12 @@
 import { NavLink } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { provinceConfig } from "../Data/provinceConfig";
-export default function ProvinceDetail() {
+import { FarmerConfig } from "../FarmerData/FarmerConfig";
+export default function Farmer() {
     // Значения по умолчанию, если пропсы не переданы
 
     const { name } = useParams();
 
-    const province = provinceConfig[name];
+    const province = FarmerConfig[name];
 
     if (!province) {
         return <div>Маълумот топилмади</div>;
@@ -19,7 +19,7 @@ export default function ProvinceDetail() {
         existingDebt3: '12 321', oneDay3: '', seasonStart3: '', percentage3: '',
     };
 
-    const totalsData =  defaultTotals;
+    const totalsData = defaultTotals;
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -161,9 +161,7 @@ export default function ProvinceDetail() {
                                             {district.id}
                                         </td>
                                         <td className="sticky left-12 z-10 p-3 font-medium text-gray-800 bg-gray-50 border-r border-black">
-                                            <NavLink to={`/tuman/1/${district.name}`}>
-                                                {district.name}
-                                            </NavLink>
+                                            {district.name}
                                         </td>
 
                                         {/* Блок 1 */}
@@ -296,7 +294,7 @@ export default function ProvinceDetail() {
 }
 
 // Определение пропсов по умолчанию
-ProvinceDetail.defaultProps = {
+Farmer.defaultProps = {
     districts: null,
     totals: null,
     title: "Туманлар буйича ҳисобот"

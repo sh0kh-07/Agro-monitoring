@@ -1,0 +1,102 @@
+
+const boyovutData = [
+    { 
+        id: 1, 
+        name: 'Т.Латипов', 
+        existingDebt: '2 479', oneDay: '', seasonStart: '', percentage: '',
+        existingDebt2: '2 479', oneDay2: '', seasonStart2: '', percentage2: '',
+        existingDebt3: '2 479', oneDay3: '', seasonStart3: '', percentage3: '',
+    },
+    { 
+        id: 2, 
+        name: 'А.Навоий', 
+        existingDebt: '588', oneDay: '', seasonStart: '', percentage: '',
+        existingDebt2: '588', oneDay2: '', seasonStart2: '', percentage2: '',
+        existingDebt3: '588', oneDay3: '', seasonStart3: '', percentage3: '',
+    },
+    { 
+        id: 3, 
+        name: 'Наврўз', 
+        existingDebt: '4 080', oneDay: '0', seasonStart: '1 887', percentage: '46,3',
+        existingDebt2: '4 080', oneDay2: '0', seasonStart2: '1 887', percentage2: '46,3',
+        existingDebt3: '4 080', oneDay3: '0', seasonStart3: '1 887', percentage3: '46,3',
+    },
+    { 
+        id: 4, 
+        name: 'Н.Махмудов', 
+        existingDebt: '', oneDay: '0', seasonStart: '0', percentage: '',
+        existingDebt2: '', oneDay2: '0', seasonStart2: '0', percentage2: '',
+        existingDebt3: '', oneDay3: '0', seasonStart3: '0', percentage3: '',
+    },
+    { 
+        id: 5, 
+        name: 'Тараққиёт', 
+        existingDebt: '740', oneDay: '', seasonStart: '', percentage: '',
+        existingDebt2: '740', oneDay2: '', seasonStart2: '', percentage2: '',
+        existingDebt3: '740', oneDay3: '', seasonStart3: '', percentage3: '',
+    },
+    { 
+        id: 6, 
+        name: 'Дехқонобод', 
+        existingDebt: '766', oneDay: '', seasonStart: '', percentage: '',
+        existingDebt2: '766', oneDay2: '', seasonStart2: '', percentage2: '',
+        existingDebt3: '766', oneDay3: '', seasonStart3: '', percentage3: '',
+    },
+    { 
+        id: 7, 
+        name: 'Ш.Рашидов', 
+        existingDebt: '101', oneDay: '', seasonStart: '5', percentage: '5,0',
+        existingDebt2: '101', oneDay2: '', seasonStart2: '5', percentage2: '5,0',
+        existingDebt3: '101', oneDay3: '', seasonStart3: '5', percentage3: '5,0',
+    },
+    { 
+        id: 8, 
+        name: '1-Боёвут', 
+        existingDebt: '3 568', oneDay: '0', seasonStart: '314', percentage: '8,8',
+        existingDebt2: '3 568', oneDay2: '0', seasonStart2: '314', percentage2: '8,8',
+        existingDebt3: '3 568', oneDay3: '0', seasonStart3: '314', percentage3: '8,8',
+    },
+    { 
+        id: 9, 
+        name: 'У.Юсупов', 
+        existingDebt: '', oneDay: '', seasonStart: '', percentage: '',
+        existingDebt2: '', oneDay2: '', seasonStart2: '', percentage2: '',
+        existingDebt3: '', oneDay3: '', seasonStart3: '', percentage3: '',
+    },
+    { 
+        id: 10, 
+        name: '3-Боёвут', 
+        existingDebt: '', oneDay: '', seasonStart: '', percentage: '',
+        existingDebt2: '', oneDay2: '', seasonStart2: '', percentage2: '',
+        existingDebt3: '', oneDay3: '', seasonStart3: '', percentage3: '',
+    },
+    { 
+        id: 11, 
+        name: 'Ғаллакор', 
+        existingDebt: '', oneDay: '', seasonStart: '', percentage: '',
+        existingDebt2: '', oneDay2: '', seasonStart2: '', percentage2: '',
+        existingDebt3: '', oneDay3: '', seasonStart3: '', percentage3: '',
+    },
+    { 
+        id: 12, 
+        name: 'Ғалаба', 
+        existingDebt: '', oneDay: '', seasonStart: '', percentage: '',
+        existingDebt2: '', oneDay2: '', seasonStart2: '', percentage2: '',
+        existingDebt3: '', oneDay3: '', seasonStart3: '', percentage3: '',
+    },
+    { 
+        id: 13, 
+        name: 'Навбаҳор', 
+        existingDebt: '', oneDay: '', seasonStart: '', percentage: '',
+        existingDebt2: '', oneDay2: '', seasonStart2: '', percentage2: '',
+        existingDebt3: '', oneDay3: '', seasonStart3: '', percentage3: '',
+    },
+    { 
+        id: 14, 
+        name: 'Ширин', 
+        existingDebt: '', oneDay: '', seasonStart: '', percentage: '',
+        existingDebt2: '', oneDay2: '', seasonStart2: '', percentage2: '',
+        existingDebt3: '', oneDay3: '', seasonStart3: '', percentage3: '',
+    }
+];
+export {boyovutData}
