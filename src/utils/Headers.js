@@ -1,9 +1,9 @@
 import axios from "axios";
 
-export const BASE_URL = "http://84.247.167.241:7171";
+export const BASE_URL = "https://dev.ithubs.uz/coffee/api/v1/agro";
 
 export const $api = axios.create({
-    baseURL: `${BASE_URL}/api/v1/`,
+    baseURL: `${BASE_URL}`,
     headers: {
         "Content-Type": "application/json",
     },

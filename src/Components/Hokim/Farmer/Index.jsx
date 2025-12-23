@@ -1,25 +1,168 @@
-import { NavLink } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { FarmerConfig } from "../FarmerData/FarmerConfig";
+import { Typography } from "@material-tailwind/react";
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState, useMemo } from "react";
+import { $api } from "../../../utils/Headers";
+
 export default function Farmer() {
-    // Значения по умолчанию, если пропсы не переданы
-
     const { name } = useParams();
-
     const province = FarmerConfig[name];
+    const [apiData, setApiData] = useState([]);
 
     if (!province) {
-        return <div>Маълумот топилмади</div>;
+        return (
+            <div className="flex flex-col items-center justify-center h-[70vh]">
+                <div className="flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-4">
+                    <ExclamationCircleIcon className="w-10 h-10 text-red-500" />
+                </div>
+                <Typography variant="h5" color="red" className="text-center">
+                    Маълумот топилмади
+                </Typography>
+                <Typography color="gray" className="text-center mt-2">
+                    Бу ҳудуд учун маълумот ҳали мавжуд эмас.
+                </Typography>
+            </div>
+        )
     }
 
-
-    const defaultTotals = {
-        existingDebt: '12 321', oneDay: '', seasonStart: '', percentage: '',
-        existingDebt2: '12 321', oneDay2: '', seasonStart2: '', percentage2: '',
-        existingDebt3: '12 321', oneDay3: '', seasonStart3: '', percentage3: '',
+    // Функция для получения значения из API данных
+    const getValueFromApi = (farmerName, taskName, key = "Мавсум боши") => {
+        const item = apiData.find(
+            (data) => 
+                data.farmer === farmerName && 
+                data.task === taskName && 
+                data.key === key
+        );
+        return item ? item.value : null;
     };
 
-    const totalsData = defaultTotals;
+    // Функция для сопоставления данных из API с структурой таблицы
+    const mapApiDataToDistricts = useMemo(() => {
+        const updatedDistricts = province.districts.map(district => {
+            const newDistrict = { ...district };
+            
+            // Блок 1: Кузги шудгорлаш
+            const seasonStart1 = getValueFromApi(district.name, "Кузги шудгорлаш", "Мавсум боши");
+            if (seasonStart1 !== null) {
+                newDistrict.seasonStart = seasonStart1;
+                const debt = parseFloat(newDistrict.existingDebt) || 0;
+                const start = parseFloat(seasonStart1) || 0;
+                if (debt > 0) {
+                    newDistrict.percentage = ((start / debt) * 100).toFixed(1) + '%';
+                }
+            }
+            
+            // Блок 2: Насосларга қуёш панели ўрнатиш
+            const seasonStart2 = getValueFromApi(district.name, "Насосларга қуёш панели ўрнатиш", "Мавсум боши");
+            if (seasonStart2 !== null) {
+                newDistrict.seasonStart2 = seasonStart2;
+                const debt = parseFloat(newDistrict.existingDebt2) || 0;
+                const start = parseFloat(seasonStart2) || 0;
+                if (debt > 0) {
+                    newDistrict.percentage2 = ((start / debt) * 100).toFixed(1) + '%';
+                }
+            }
+            
+            // Блок 3: Ички ариқларни бетонлаштириш
+            const seasonStart3 = getValueFromApi(district.name, "Ички ариқларни бетонлаштириш", "Мавсум боши");
+            if (seasonStart3 !== null) {
+                newDistrict.seasonStart3 = seasonStart3;
+                const debt = parseFloat(newDistrict.existingDebt3) || 0;
+                const start = parseFloat(seasonStart3) || 0;
+                if (debt > 0) {
+                    newDistrict.percentage3 = ((start / debt) * 100).toFixed(1) + '%';
+                }
+            }
+            
+            return newDistrict;
+        });
+
+        return updatedDistricts;
+    }, [apiData, province.districts]);
+
+    // Функция для подсчета итогов на основе обновленных данных
+    const calculateTotals = () => {
+        let totals = {
+            existingDebt: 0,
+            seasonStart: 0,
+            percentage: '',
+            
+            existingDebt2: 0,
+            seasonStart2: 0,
+            percentage2: '',
+            
+            existingDebt3: 0,
+            seasonStart3: 0,
+            percentage3: '',
+        };
+
+        mapApiDataToDistricts.forEach(district => {
+            // Блок 1
+            totals.existingDebt += parseFloat(district.existingDebt) || 0;
+            totals.seasonStart += parseFloat(district.seasonStart) || 0;
+            
+            // Блок 2
+            totals.existingDebt2 += parseFloat(district.existingDebt2) || 0;
+            totals.seasonStart2 += parseFloat(district.seasonStart2) || 0;
+            
+            // Блок 3
+            totals.existingDebt3 += parseFloat(district.existingDebt3) || 0;
+            totals.seasonStart3 += parseFloat(district.seasonStart3) || 0;
+        });
+
+        // Вычисляем проценты
+        totals.percentage = totals.existingDebt > 0 
+            ? ((totals.seasonStart / totals.existingDebt) * 100).toFixed(1) + '%'
+            : '';
+        
+        totals.percentage2 = totals.existingDebt2 > 0 
+            ? ((totals.seasonStart2 / totals.existingDebt2) * 100).toFixed(1) + '%'
+            : '';
+        
+        totals.percentage3 = totals.existingDebt3 > 0 
+            ? ((totals.seasonStart3 / totals.existingDebt3) * 100).toFixed(1) + '%'
+            : '';
+
+        // Форматируем числа
+        const formatNumber = (num) => {
+            return num.toLocaleString('ru-RU', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }).replace(',', '.');
+        };
+
+        return {
+            existingDebt: formatNumber(totals.existingDebt),
+            seasonStart: formatNumber(totals.seasonStart),
+            percentage: totals.percentage,
+            
+            existingDebt2: formatNumber(totals.existingDebt2),
+            seasonStart2: formatNumber(totals.seasonStart2),
+            percentage2: totals.percentage2,
+            
+            existingDebt3: formatNumber(totals.existingDebt3),
+            seasonStart3: formatNumber(totals.seasonStart3),
+            percentage3: totals.percentage3,
+        };
+    };
+
+    const Get = async () => {
+        try {
+            const response = await $api.get(`farmer/${name}`);
+            if (response.data && response.data.data) {
+                setApiData(response.data.data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        Get();
+    }, [name]);
+
+    const totalsData = calculateTotals();
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -47,19 +190,19 @@ export default function Farmer() {
 
                                     {/* Основные заголовки блоков */}
                                     <th colSpan={4} className="p-3 text-center font-medium text-gray-800 bg-blue-50 border-r border-t border-black min-w-[250px]">
-                                        Ер ўзлаштириш
+                                        Кузги шудгорлаш
                                     </th>
 
                                     <th colSpan={4} className="p-3 text-center font-medium text-gray-800 bg-blue-50 border-t border-r border-black min-w-[250px]">
-                                        Ер ўзлаштириш
+                                        Насосларга қуёш панели ўрнатиш
                                     </th>
 
                                     <th colSpan={4} className="p-3 text-center font-medium text-gray-800 bg-blue-50 border-t border-r border-black min-w-[250px]">
-                                        Ер ўзлаштириш
+                                        Ички ариқларни бетонлаштириш
                                     </th>
 
                                     <th colSpan={4} className="p-3 text-center font-medium text-gray-800 bg-blue-50 border-t border-r border-black min-w-[250px]">
-                                        Ер ўзлаштириш
+                                        Ариқларни тозалаш (қўл кучида)
                                     </th>
                                 </tr>
 
@@ -67,7 +210,7 @@ export default function Farmer() {
                                 <tr className="border-b border-gray-200">
                                     {/* Блок 1 */}
                                     <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 border-t border-b bg-blue-100 border-r border-black min-w-[120px]">
-                                        Мавжуд қарздорлик
+                                        Режа
                                     </th>
                                     <th colSpan={2} className="p-2 text-center font-medium text-gray-700 border-t border-b bg-blue-100 border-r border-black">
                                         Амалда
@@ -78,7 +221,7 @@ export default function Farmer() {
 
                                     {/* Блок 2 */}
                                     <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 bg-blue-100 border-r border-b border-black min-w-[120px]">
-                                        Мавжуд қарздорлик
+                                        Режа
                                     </th>
                                     <th colSpan={2} className="p-2 text-center font-medium text-gray-700 bg-blue-100 border-r border-b border-black">
                                         Амалда
@@ -89,7 +232,7 @@ export default function Farmer() {
 
                                     {/* Блок 3 */}
                                     <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 border-b bg-blue-100 border-r border-black min-w-[120px]">
-                                        Мавжуд қарздорлик
+                                        Режа
                                     </th>
                                     <th colSpan={2} className="p-2 text-center font-medium text-gray-700 bg-blue-100 border-r border-black">
                                         Амалда
@@ -100,7 +243,7 @@ export default function Farmer() {
 
                                     {/* Блок 4 */}
                                     <th rowSpan={2} className="p-2 text-center font-medium text-gray-700 border-b bg-blue-100 border-r border-black min-w-[120px]">
-                                        Мавжуд қарздорлик
+                                        Режа
                                     </th>
                                     <th colSpan={2} className="p-2 text-center font-medium text-gray-700 border-b bg-blue-100 border-r border-black">
                                         Амалда
@@ -147,7 +290,7 @@ export default function Farmer() {
                             </thead>
 
                             <tbody>
-                                {province.districts.map((district, index) => (
+                                {mapApiDataToDistricts.map((district, index) => (
                                     <tr
                                         key={district.id}
                                         className={`
@@ -233,10 +376,10 @@ export default function Farmer() {
                                         {totalsData.existingDebt}
                                     </td>
                                     <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.oneDay || '-'}
+                                        -
                                     </td>
                                     <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.seasonStart || '-'}
+                                        {totalsData.seasonStart}
                                     </td>
                                     <td className="p-3 text-center text-gray-800 border-r border-black">
                                         {totalsData.percentage || '-'}
@@ -247,10 +390,10 @@ export default function Farmer() {
                                         {totalsData.existingDebt2}
                                     </td>
                                     <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.oneDay2 || '-'}
+                                        -
                                     </td>
                                     <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.seasonStart2 || '-'}
+                                        {totalsData.seasonStart2}
                                     </td>
                                     <td className="p-3 text-center text-gray-800 border-r border-black">
                                         {totalsData.percentage2 || '-'}
@@ -261,10 +404,10 @@ export default function Farmer() {
                                         {totalsData.existingDebt3}
                                     </td>
                                     <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.oneDay3 || '-'}
+                                        -
                                     </td>
                                     <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.seasonStart3 || '-'}
+                                        {totalsData.seasonStart3}
                                     </td>
                                     <td className="p-3 text-center text-gray-800 border-r border-black">
                                         {totalsData.percentage3 || '-'}
@@ -275,10 +418,10 @@ export default function Farmer() {
                                         {totalsData.existingDebt}
                                     </td>
                                     <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.oneDay || '-'}
+                                        -
                                     </td>
                                     <td className="p-3 text-center text-gray-600 border-r border-black">
-                                        {totalsData.seasonStart || '-'}
+                                        {totalsData.seasonStart}
                                     </td>
                                     <td className="p-3 text-center text-gray-800">
                                         {totalsData.percentage || '-'}
@@ -293,7 +436,6 @@ export default function Farmer() {
     );
 }
 
-// Определение пропсов по умолчанию
 Farmer.defaultProps = {
     districts: null,
     totals: null,
