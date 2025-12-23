@@ -184,31 +184,61 @@ export default function Viloyat() {
     };
 
 useEffect(() => {
-    Get(); // первый запрос при загрузке
+    let isActive = true;
+
+    const refreshData = async () => {
+        if (isActive) {
+            console.log("Выполняю обновление данных...");
+            try {
+                await Get(); // Предполагаю, что Get() асинхронная
+                console.log("Данные успешно обновлены");
+            } catch (error) {
+                console.error("Ошибка при обновлении данных:", error);
+            }
+        }
+    };
+
+    // Первоначальная загрузка
+    refreshData();
+
     socketRef.current = io("https://dev.ithubs.uz", {
         path: "/coffee/socket.io",
         transports: ["websocket"],
     });
-    socketRef.current.on("district:update", (data) => {
-        console.log("Получены обновления по районам:", data);
-        Get();
+
+    const socket = socketRef.current;
+
+    // Принудительное обновление при любых изменениях
+    const forceRefresh = () => {
+        console.log("Принудительное обновление данных");
+        refreshData();
+    };
+
+    socket.on("district:update", forceRefresh);
+    
+    // Также слушаем другие события, которые могут требовать обновления
+    socket.onAny((eventName, ...args) => {
+        console.log(`Событие сокета: ${eventName}`, args);
+        if (eventName.includes("update") || eventName.includes("change") || eventName.includes("refresh")) {
+            forceRefresh();
+        }
     });
 
-    // Обработка соединения/отключения
-    socketRef.current.on("connect", () => {
+    socket.on("connect", () => {
         console.log("Socket подключен");
+        forceRefresh(); // Обновляем при подключении
     });
 
-    socketRef.current.on("disconnect", () => {
+    socket.on("disconnect", () => {
         console.log("Socket отключен");
     });
 
-    // очистка при размонтировании
     return () => {
-        socketRef.current.off("district:update");
-        socketRef.current.off("connect");
-        socketRef.current.off("disconnect");
-        socketRef.current.disconnect();
+        isActive = false;
+        socket.off("district:update");
+        socket.off("connect");
+        socket.off("disconnect");
+        socket.disconnect();
     };
 }, []);
 

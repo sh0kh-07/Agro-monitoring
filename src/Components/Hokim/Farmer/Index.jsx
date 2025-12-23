@@ -146,35 +146,64 @@ export default function Farmer() {
     }, [name]);
 
 
-    useEffect(() => {
-        Get(); // первый запрос при загрузке
-        socketRef.current = io("https://dev.ithubs.uz", {
-            path: "/coffee/socket.io",
-            transports: ["websocket"],
-        });
-        socketRef.current.on("district:update", (data) => {
-            console.log("Получены обновления по районам:", data);
-            Get();
-        });
+useEffect(() => {
+    let isActive = true;
 
-        // Обработка соединения/отключения
-        socketRef.current.on("connect", () => {
-            console.log("Socket подключен");
-        });
+    const refreshData = async () => {
+        if (isActive) {
+            console.log("Выполняю обновление данных...");
+            try {
+                await Get(); // Предполагаю, что Get() асинхронная
+                console.log("Данные успешно обновлены");
+            } catch (error) {
+                console.error("Ошибка при обновлении данных:", error);
+            }
+        }
+    };
 
-        socketRef.current.on("disconnect", () => {
-            console.log("Socket отключен");
-        });
+    // Первоначальная загрузка
+    refreshData();
 
-        // очистка при размонтировании
-        return () => {
-            socketRef.current.off("district:update");
-            socketRef.current.off("connect");
-            socketRef.current.off("disconnect");
-            socketRef.current.disconnect();
-        };
-    }, []);
+    socketRef.current = io("https://dev.ithubs.uz", {
+        path: "/coffee/socket.io",
+        transports: ["websocket"],
+    });
 
+    const socket = socketRef.current;
+
+    // Принудительное обновление при любых изменениях
+    const forceRefresh = () => {
+        console.log("Принудительное обновление данных");
+        refreshData();
+    };
+
+    socket.on("district:update", forceRefresh);
+    
+    // Также слушаем другие события, которые могут требовать обновления
+    socket.onAny((eventName, ...args) => {
+        console.log(`Событие сокета: ${eventName}`, args);
+        if (eventName.includes("update") || eventName.includes("change") || eventName.includes("refresh")) {
+            forceRefresh();
+        }
+    });
+
+    socket.on("connect", () => {
+        console.log("Socket подключен");
+        forceRefresh(); // Обновляем при подключении
+    });
+
+    socket.on("disconnect", () => {
+        console.log("Socket отключен");
+    });
+
+    return () => {
+        isActive = false;
+        socket.off("district:update");
+        socket.off("connect");
+        socket.off("disconnect");
+        socket.disconnect();
+    };
+}, []);
     const totalsData = calculateTotals();
 
     if (loading) {
