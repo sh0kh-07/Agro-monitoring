@@ -2,7 +2,7 @@ import { Children, useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
 
-export default function ProtectedRoute({children}) {
+export default function ProtectRoute({children}) {
 
     const [isLoged, setIsLoged] = useState(sessionStorage.getItem("nesw") === "ok1");
     const location = useLocation().pathname
