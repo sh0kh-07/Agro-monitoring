@@ -33,18 +33,22 @@ export default function Dashboard() {
   // Данные планов
   const planlar = [
     'Ер ўзлаштириш', 
-    'Дарахт ўткизиш', 
-    'Сув таъминоти', 
-    'Қишлоқ хўжалиги',
-    'Инфратузилма',
-    'Ижтимоий лойиҳалар',
-    'Экология',
-    'Мактаб-таълим'
+    'Шинжон усулида', 
+    'Кузги шудгорлаш', 
+    'Ички ариқларни бетонлаштириш',
+    'Ариқларни тозалаш (қўл кучида)',
+    'Ғаллани суғориш 1-сув',
+    'Пилла шартнома тузиш',
+    'Насосларга қуёш панели ўрнатиш',
+    'Ғалла кредетидан қарздорлиги млн.сўм',
+    'Пахта кредетидан қарздорлиги млн.сўм',
+    'Сув солиғидан қарздорлик млн.сўм',
+    'Судга бериш,(ф/х сони)',
   ];
 
   // Данные выполнения планов
-  const bajarilgan = [85, 92, 78, 65, 88, 72, 81, 95];
-  const reja = [100, 100, 100, 100, 100, 100, 100, 100];
+  const bajarilgan = [85, 92, 78, 65, 88, 72, 81, 95,92,62,43,55];
+  const reja = [100, 100, 100, 100, 100, 100, 100, 100, 100,100, 100, 100];
   const ortachaFoiz = bajarilgan.reduce((a, b) => a + b, 0) / bajarilgan.length;
 
   // Данные для столбчатой диаграммы (выполнение планов)
@@ -70,25 +74,6 @@ export default function Dashboard() {
     ]
   };
 
-  // Данные для линейного графика (динамика выполнения)
-  const dinamikaData = {
-    labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
-    datasets: [
-      {
-        label: 'Режа бажарилиши (%)',
-        data: [45, 52, 58, 65, 72, 78, 82, 85, 88, 90, 92, 95],
-        borderColor: 'rgba(16, 185, 129, 1)',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: 'rgba(16, 185, 129, 1)',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2,
-        pointRadius: 5,
-      }
-    ]
-  };
 
   // Данные для круговой диаграммы (статус планов)
   const statusData = {
@@ -295,7 +280,7 @@ export default function Dashboard() {
       muddat: '15.12.2024'
     },
     {
-      name: 'Дарахт ўткизиш',
+      name: 'Шинжон усулида',
       bajarildi: 9200,
       reja: 10000,
       foiz: 92,
@@ -303,7 +288,7 @@ export default function Dashboard() {
       muddat: '20.12.2024'
     },
     {
-      name: 'Сув таъминоти',
+      name: 'Кузги шудгорлаш',
       bajarildi: 78,
       reja: 100,
       foiz: 78,
@@ -311,7 +296,7 @@ export default function Dashboard() {
       muddat: '10.12.2024'
     },
     {
-      name: 'Қишлоқ хўжалиги',
+      name: 'Ички ариқларни бетонлаштириш',
       bajarildi: 65,
       reja: 100,
       foiz: 65,
@@ -319,7 +304,7 @@ export default function Dashboard() {
       muddat: '25.12.2024'
     },
     {
-      name: 'Инфратузилма',
+      name: 'Ариқларни тозалаш (қўл кучида)',
       bajarildi: 88,
       reja: 100,
       foiz: 88,
@@ -423,23 +408,6 @@ export default function Dashboard() {
               </div>
             </CardBody>
           </Card>
-
-          {/* Мини-линейный график */}
-          <Card className="border border-gray-200 shadow-lg">
-            <CardHeader 
-              floated={false} 
-              shadow={false} 
-              className="rounded-none p-6 pb-3"
-            >
-              <h2 className="text-xl font-bold text-gray-800">Йиллик динамика</h2>
-              <p className="text-gray-600 text-sm mt-1">2024 йил бажарилиши</p>
-            </CardHeader>
-            <CardBody className="p-6 pt-0">
-              <div className="h-48">
-                <Line data={dinamikaData} options={lineOptions} />
-              </div>
-            </CardBody>
-          </Card>
         </div>
       </div>
 
@@ -512,161 +480,6 @@ export default function Dashboard() {
           </div>
         </CardBody>
       </Card>
-
-      {/* Дополнительная информация и кнопки действий */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Ближайшие сроки */}
-        <Card className="border border-gray-200 shadow-lg">
-          <CardHeader 
-            floated={false} 
-            shadow={false} 
-            className="rounded-none p-6 pb-3"
-          >
-            <h2 className="text-xl font-bold text-gray-800">Яқин муддатлар</h2>
-            <p className="text-gray-600 text-sm mt-1">Тугаши яқин планар</p>
-          </CardHeader>
-          <CardBody className="p-6 pt-0">
-            <div className="space-y-4">
-              {[
-                { name: 'Мактаб-таълим', muddat: '18.12.2024', progress: 95, qolganKun: 3 },
-                { name: 'Экология', muddat: '20.12.2024', progress: 81, qolganKun: 5 },
-                { name: 'Ижтимоий лойиҳалар', muddat: '22.12.2024', progress: 72, qolganKun: 7 },
-                { name: 'Сув таъминоти', muddat: '25.12.2024', progress: 78, qolganKun: 10 },
-              ].map((item, index) => (
-                <div key={index} className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">{item.name}</span>
-                    <span className={`text-sm px-2 py-1 rounded-full ${
-                      item.qolganKun <= 5 ? 'bg-red-100 text-red-800' :
-                      item.qolganKun <= 10 ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {item.qolganKun} кун
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <span>Муддат: {item.muddat}</span>
-                    <span className="font-medium">{item.progress}%</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Статистика по месяцам */}
-        <Card className="border border-gray-200 shadow-lg">
-          <CardHeader 
-            floated={false} 
-            shadow={false} 
-            className="rounded-none p-6 pb-3"
-          >
-            <h2 className="text-xl font-bold text-gray-800">Ойлик бажарилиш</h2>
-            <p className="text-gray-600 text-sm mt-1">2024 йил ойлар кесимида</p>
-          </CardHeader>
-          <CardBody className="p-6 pt-0">
-            <div className="space-y-3">
-              {[
-                { oy: 'Декабрь', foiz: 95, oshirish: '+5%' },
-                { oy: 'Ноябрь', foiz: 90, oshirish: '+4%' },
-                { oy: 'Октябрь', foiz: 86, oshirish: '+2%' },
-                { oy: 'Сентябрь', foiz: 84, oshirish: '+3%' },
-                { oy: 'Август', foiz: 81, oshirish: '+2%' },
-              ].map((item, index) => (
-                <div key={index} className="flex items-center">
-                  <span className="w-20 text-sm text-gray-600">{item.oy}</span>
-                  <div className="flex-1 mx-4">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="h-2 rounded-full bg-blue-500"
-                        style={{ width: `${item.foiz}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">{item.foiz}%</span>
-                    <span className="text-sm text-green-600">{item.oshirish}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Кнопки действий */}
-        <Card className="border border-gray-200 shadow-lg">
-          <CardHeader 
-            floated={false} 
-            shadow={false} 
-            className="rounded-none p-6 pb-3"
-          >
-            <h2 className="text-xl font-bold text-gray-800">Амаллар</h2>
-            <p className="text-gray-600 text-sm mt-1">Планлар бошқаруви</p>
-          </CardHeader>
-          <CardBody className="p-6 pt-0">
-            <div className="space-y-3">
-              <button className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
-                <span className="mr-2">📋</span>
-                Янги план қўшиш
-              </button>
-              <button className="w-full px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
-                <span className="mr-2">📊</span>
-                Ҳисобот яратиш
-              </button>
-              <button className="w-full px-4 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center justify-center">
-                <span className="mr-2">🔔</span>
-                Хабарномалар
-              </button>
-              <button className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
-                <span className="mr-2">⚙️</span>
-                Созламалар
-              </button>
-            </div>
-            
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <h3 className="font-medium text-gray-700 mb-2">Энг яхши бажарувчилар</h3>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li className="flex items-center">
-                  <span className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs mr-2">1</span>
-                  Дарахт ўткизиш лойиҳаси - 92%
-                </li>
-                <li className="flex items-center">
-                  <span className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs mr-2">2</span>
-                  Мактаб-таълим лойиҳаси - 95%
-                </li>
-                <li className="flex items-center">
-                  <span className="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-xs mr-2">3</span>
-                  Инфратузилма лойиҳаси - 88%
-                </li>
-              </ul>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* Футер с информацией */}
-      <div className="mt-8 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-600">
-              Маълумотлар: <span className="font-medium">2024 йил 15 декабрь</span>
-            </p>
-            <p className="text-sm text-gray-600 mt-1">
-              Умумий планар: <span className="font-medium">24 та</span> | 
-              Бажарилган: <span className="font-medium text-green-600">15 та</span> | 
-              Жараёнда: <span className="font-medium text-blue-600">6 та</span>
-            </p>
-          </div>
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
-              План ҳисоботи
-            </button>
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-              Батафсил таҳлил
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

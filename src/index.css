@@ -3,8 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 .Container {
   width: 100%;
   max-width: 1430px;
