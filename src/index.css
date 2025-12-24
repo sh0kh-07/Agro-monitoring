@@ -116,3 +116,259 @@ input[type="number"]::-webkit-inner-spin-button {
   gap: 30px;
   padding: 18px 0px !important;
 }
+
+
+
+
+
+
+
+
+
+
+.viloyat-container {
+  width: 100%;
+  overflow-x: auto;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  position: relative;
+}
+
+.table-wrapper {
+  min-width: 2000px;
+  margin: 20px 0;
+}
+
+.viloyat-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #ddd;
+}
+
+.viloyat-table th,
+.viloyat-table td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* Sticky columns */
+.sticky-col {
+  position: sticky;
+}
+
+/* Заголовки */
+.main-header {
+  background-color: #4a6fa5;
+  color: white;
+  font-weight: bold;
+  padding: 10px 4px;
+  text-align: center;
+  font-size: 11px;
+  border-right: 1px solid #ddd;
+}
+
+.sub-header {
+  background-color: #5d8cc9;
+  color: white;
+  font-weight: bold;
+  padding: 8px 4px;
+  font-size: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.subsub-header {
+  background-color: #7ea7d8;
+  color: white;
+  font-weight: bold;
+  padding: 6px 3px;
+  font-size: 9px;
+  border-right: 1px solid #ddd;
+}
+
+/* Ячейки */
+.cell {
+  min-width: 50px;
+  height: 40px;
+}
+
+.name-cell {
+  font-weight: bold;
+  min-width: 120px;
+  text-align: left;
+}
+
+/* Стили для обычных строк данных */
+.data-row:nth-child(even) td:not(.sticky-col) {
+  background-color: #f9f9f9;
+}
+
+.data-row:hover td:not(.sticky-col) {
+  background-color: #f5f5f5;
+}
+
+/* Для последней строки (итоги) */
+.data-row:nth-child(9) td:not(.sticky-col) {
+  font-weight: bold;
+  background-color: #e8f4ff;
+}
+
+/* Границы для sticky колонок */
+.sticky-col {
+  border-right: 2px solid #4a6fa5;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .viloyat-container {
+    font-size: 10px;
+  }
+  
+  .viloyat-table th,
+  .viloyat-table td {
+    padding: 4px 6px;
+  }
+  
+  .table-wrapper {
+    min-width: 1500px;
+  }
+  
+  .main-header {
+    font-size: 10px;
+    padding: 8px 3px;
+  }
+  
+  .sub-header {
+    font-size: 9px;
+    padding: 6px 3px;
+  }
+  
+  .subsub-header {
+    font-size: 8px;
+    padding: 5px 2px;
+  }
+  
+  .cell {
+    min-width: 40px;
+    height: 35px;
+  }
+  
+  .name-cell {
+    min-width: 100px;
+  }
+}
+
+
+
+
+
+
+
+.grid-container {
+  width: 100%;
+  overflow-x: auto;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+}
+
+.waffle {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.waffle th, .waffle td {
+  border: 1px solid #d0d0d0;
+  padding: 10px 4px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  font-weight: normal;
+}
+
+/* Стили для заголовков строк */
+.row-headers-background {
+  background-color: #f0f0f0;
+  border: 1px solid #d0d0d0;
+  min-width: 30px;
+}
+
+.row-header-wrapper {
+  text-align: center;
+}
+
+/* Стили классов из HTML */
+.s0 {
+  background-color: #e6f3ff;
+  font-weight: bold;
+  border: 1px solid #c0c0c0;
+  padding: 0px 20px !important;
+}
+
+.s1 {
+  background-color: #4a86e8;
+  color: white;
+  font-weight: bold;
+  border: 1px solid #c0c0c0;
+}
+
+.s2 {
+  background-color: #ffffff;
+  border: 1px solid #d0d0d0;
+}
+
+.s3 {
+  background-color: #f9f9f9;
+  border: 1px solid #d0d0d0;
+  text-align: left;
+  min-width: 120px;
+}
+
+.s4 {
+  background-color: #ffe6e6;
+  border: 1px solid #d0d0d0;
+}
+
+.s5 {
+  background-color: #f2f2f2;
+  border: 1px solid #d0d0d0;
+  text-align: left;
+}
+
+.s6 {
+  background-color: #d9ead3;
+  border: 1px solid #c0c0c0;
+  font-weight: bold;
+}
+
+/* Стиль для последней строки (итоги) */
+tr:last-child td {
+  font-weight: bold !important;
+}
+
+/* Для sticky колонок */
+.sticky-col {
+  position: sticky;
+  z-index: 2;
+}
+
+.sticky-first {
+  left: 0;
+  background-color: inherit;
+}
+
+.sticky-second {
+  left: 40px;
+  background-color: inherit;
+  border-right: 2px solid #4a86e8;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+/* Заголовки тоже делаем sticky */
+thead th.sticky-col {
+  z-index: 3;
+}
