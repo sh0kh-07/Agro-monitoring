@@ -277,7 +277,7 @@ export default function Dashboard() {
       reja: 1000,
       foiz: 85,
       holat: 'Яхши',
-      muddat: '15.12.2024'
+      muddat: '15.12.2025'
     },
     {
       name: 'Шинжон усулида',
@@ -285,7 +285,7 @@ export default function Dashboard() {
       reja: 10000,
       foiz: 92,
       holat: 'Аъло',
-      muddat: '20.12.2024'
+      muddat: '20.12.2025'
     },
     {
       name: 'Кузги шудгорлаш',
@@ -293,7 +293,7 @@ export default function Dashboard() {
       reja: 100,
       foiz: 78,
       holat: 'Ўртача',
-      muddat: '10.12.2024'
+      muddat: '10.12.2025'
     },
     {
       name: 'Ички ариқларни бетонлаштириш',
@@ -301,7 +301,7 @@ export default function Dashboard() {
       reja: 100,
       foiz: 65,
       holat: 'Кутилган',
-      muddat: '25.12.2024'
+      muddat: '25.12.2025'
     },
     {
       name: 'Ариқларни тозалаш (қўл кучида)',
@@ -309,7 +309,7 @@ export default function Dashboard() {
       reja: 100,
       foiz: 88,
       holat: 'Яхши',
-      muddat: '30.12.2024'
+      muddat: '30.12.2025'
     }
   ];
 
